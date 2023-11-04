@@ -15,7 +15,7 @@
 </div>
 </template>
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import backBoardLarge from '../assets/images/board-layer-black-large.svg';
 import backBoardSmall from '../assets/images/board-layer-black-small.svg';
 import frontBoardLarge from '../assets/images/board-layer-white-large.svg';
@@ -31,16 +31,18 @@ export default {
         // const rows = 6;
         let columnPositions = [];
         // const rowPositions = [];
+        const forceNextTick = inject('forceNextTick');
 
         onMounted(() => {
-            window.addEventListener("resize", getColumnPositions);
-            getColumnPositions(); 
+            forceNextTick(() => getColumnPositions());
         });
 
         const getColumnPositions = () => {
+            console.log(board);
             columnPositions = [];
             for (let i = 0; i < columns; i++) {
-                columnPositions.push(board.value.offsetLeft + (i * (board.value.offsetWidth / columns)) + (marker.value.width) - i*4);
+                console.log(board.value.offsetLeft, board.value.offsetWidth, marker.value.width)
+                columnPositions.push(parseFloat(board.value.offsetLeft + (i * (board.value.offsetWidth / columns)) + (marker.value.width) - i*4).toFixed(2));
             }
 
             console.log(columnPositions)
@@ -48,14 +50,9 @@ export default {
 
         const updateMarkerPosition = (event) => {
             const x = event.clientX;
-            const y = event.clientY;
-            console.log(x, y);
             const validPositions = columnPositions.filter((c) => c < x);
-            console.log(`c: ${columnPositions}, x: ${x}`)
-            console.log(validPositions);
             const validPositionIndex = columnPositions.indexOf(validPositions[validPositions.length - 1]);
             marker.value.style.left = `${columnPositions[validPositionIndex]}px`;
-            console.log('in column', validPositionIndex);
         }
 
         const startCounterCheck = () => {

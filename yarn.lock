@@ -2093,6 +2093,11 @@ vue-eslint-parser@^9.3.1:
     lodash "^4.17.21"
     semver "^7.3.6"
 
+vue-force-next-tick@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/vue-force-next-tick/-/vue-force-next-tick-1.2.0.tgz#161555e45d7217da7f7d407694e2c494d7b73d84"
+  integrity sha512-EZXAX86j7Juv33LlXCbd0nRa2qsC1bAeIGgMMpj6I+SWgK/ABgwII4LZ64jIYRFvxaXOCMsq8M9kJsfIEEJtgA==
+
 vue-router@^4.2.5:
   version "4.2.5"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.2.5.tgz#b9e3e08f1bd9ea363fdd173032620bc50cf0e98a"
