@@ -30,6 +30,7 @@ export default {
         const columns = 7;
         let columnPositions = [];
         const forceNextTick = inject('forceNextTick');
+        const CENTER_OFFSET = 4;
 
         onMounted(() => {
             forceNextTick(() => getColumnPositions());
@@ -45,7 +46,7 @@ export default {
             columnPositions = [];
             for (let i = 0; i < columns; i++) {
                 console.log(board.value.offsetLeft, board.value.offsetWidth, marker.value.width)
-                columnPositions.push(parseFloat(board.value.offsetLeft + (i * (board.value.offsetWidth / columns)) + (marker.value.width) - i*4).toFixed(2));
+                columnPositions.push(parseFloat(board.value.offsetLeft + (i * (board.value.offsetWidth / columns)) + (marker.value.width) - i * CENTER_OFFSET).toFixed(2));
             }
         }
 
