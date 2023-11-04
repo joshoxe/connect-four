@@ -40,7 +40,7 @@ export default {
         const getColumnPositions = () => {
             columnPositions = [];
             for (let i = 0; i < columns; i++) {
-                columnPositions.push(board.value.offsetLeft + (i * (board.value.offsetWidth / columns)) + (board.value.offsetWidth / (columns * 2)) - (marker.value.width / 2) + 5 - i);
+                columnPositions.push(board.value.offsetLeft + (i * (board.value.offsetWidth / columns)) + (marker.value.width) - i*4);
             }
 
             console.log(columnPositions)
