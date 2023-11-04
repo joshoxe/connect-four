@@ -1,7 +1,7 @@
 <template>
     <div>
     <div id="board">
-        <img v-show="isHovered" ref="marker" class="marker animate__animated animate__bounce animate__infinite" :src="redMarker" alt="red counter" />
+        <img v-show="isHovered" ref="marker" class="marker animate__animated animate__bounce animate__infinite" :src="redMarker" alt="red marker" />
 
         <div ref=board class="board-container d-none d-md-block" @mouseover="startCounterCheck" @mouseleave="stopCounterCheck">
             <img class="back" :src="backBoardLarge" alt="back board" />
