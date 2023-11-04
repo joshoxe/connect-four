@@ -45,7 +45,6 @@ export default {
         const getColumnPositions = () => {
             columnPositions = [];
             for (let i = 0; i < columns; i++) {
-                console.log(board.value.offsetLeft, board.value.offsetWidth, marker.value.width)
                 columnPositions.push(parseFloat(board.value.offsetLeft + (i * (board.value.offsetWidth / columns)) + (marker.value.width) - i * CENTER_OFFSET).toFixed(2));
             }
         }
