@@ -15,7 +15,7 @@
 </div>
 </template>
 <script>
-import { ref, onMounted, inject } from 'vue';
+import { ref, onMounted, onUnmounted, inject } from 'vue';
 import backBoardLarge from '../assets/images/board-layer-black-large.svg';
 import backBoardSmall from '../assets/images/board-layer-black-small.svg';
 import frontBoardLarge from '../assets/images/board-layer-white-large.svg';
@@ -28,24 +28,25 @@ export default {
         const isHovered = ref(false);
         const marker = ref(null);
         const columns = 7;
-        // const rows = 6;
         let columnPositions = [];
-        // const rowPositions = [];
         const forceNextTick = inject('forceNextTick');
 
         onMounted(() => {
             forceNextTick(() => getColumnPositions());
+
+            window.addEventListener('resize', getColumnPositions);
+        });
+
+        onUnmounted(() => {
+            window.removeEventListener('resize', getColumnPositions);
         });
 
         const getColumnPositions = () => {
-            console.log(board);
             columnPositions = [];
             for (let i = 0; i < columns; i++) {
                 console.log(board.value.offsetLeft, board.value.offsetWidth, marker.value.width)
                 columnPositions.push(parseFloat(board.value.offsetLeft + (i * (board.value.offsetWidth / columns)) + (marker.value.width) - i*4).toFixed(2));
             }
-
-            console.log(columnPositions)
         }
 
         const updateMarkerPosition = (event) => {
