@@ -5,8 +5,14 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'menu',
+      component: () => import('../views/MenuView.vue')
+    },
+    {
+      path: '/:roomId',
       name: 'play',
       component: () => import('../views/PlayView.vue')
+
     }
   ]
 })

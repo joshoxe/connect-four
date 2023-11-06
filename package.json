@@ -2,9 +2,11 @@
   "name": "connect-four",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "server": "node src/ws/server.js",
     "preview": "vite preview",
     "test:unit": "vitest",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
@@ -16,6 +18,9 @@
     "bootstrap": "^5.3.2",
     "pinia": "^2.1.7",
     "sass": "^1.69.5",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2",
+    "unique-names-generator": "^4.7.1",
     "vue": "^3.3.4",
     "vue-force-next-tick": "^1.2.0",
     "vue-router": "^4.2.5"
