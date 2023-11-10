@@ -9,7 +9,7 @@ const router = createRouter({
       component: () => import('../views/MenuView.vue')
     },
     {
-      path: '/:roomId',
+      path: '/play/:roomId',
       name: 'play',
       component: () => import('../views/PlayView.vue')
 
