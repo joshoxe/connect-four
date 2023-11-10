@@ -92,21 +92,16 @@ export default {
             }
 
             server.socket.emit('room-joined', route.params.roomId);
-            console.log('room joined', route.params.roomId);
 
            server.socket.on('move-made', (data) => {
-            console.log(`setting value at ${data.column - 1} ${data.row - 1} to ${data.color}`)
             vBoard.value[data.column - 1][data.row - 1] = data.color;
-            console.log(vBoard.value);
            });
 
            server.socket.on('next-turn', (data) => {
-               console.log('next turn');
                currentTurn.value = data;
            });
 
            server.socket.on('colour', (data) => {
-               console.log('colour');
                colour.value = data;
            });
         });

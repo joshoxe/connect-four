@@ -16,7 +16,6 @@ export default {
       server.startNewGame();
 
       server.socket.on('room-created', (data) => {
-      console.log('room created', data);
       router.push({ name: 'play', params: { roomId: data } });
      });
     }

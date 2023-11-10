@@ -35,7 +35,6 @@ io.on("connection", (socket) => {
     
     // get room from socket
     const room = [...socket.rooms][1];
-    console.log('room', room)
     
     if (column == null || column < 0 || column > 7) {
       socket.emit('error', 'Invalid column');
@@ -45,7 +44,6 @@ io.on("connection", (socket) => {
     const game = games[room];
   
     const row = getAvailableRow(game.board, column);
-    console.log('row', row)
   
     if (row == null) {
       socket.emit('error', 'Column is full');
