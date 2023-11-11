@@ -1,35 +1,39 @@
 <template>
-    <div>
-        You are player {{ colour }}
-    <div id="board">
-        <div ref=board class="board-container d-none d-md-block">
-            <img class="back" :src="backBoardLarge" alt="back board" />
-            <div ref="grid" class="grid-container">
-                <div class="column" v-for="col in 7" :key="col" @mouseover="setMarkerPosition(col)" @mouseleave="removeMarkerPosition" @click="makeMove(col)">
-                    <img v-if="markerColumn === col && playerTurn" class="marker animate__animated animate__bounce animate__infinite" :src="colour === 'red' ? redMarker : yellowMarker" alt="red marker" />
-                    <div :id="`col-${col}-cell-${row}`" class="cell" v-for="row in 6" :key="`cell-${row}`">
-                        <img
-                            class="red-counter animate__animated animate__bounceInDown d-none d-md-block"
-                            v-if="vBoard[col - 1][row - 1]"
-                            :src="vBoard[col - 1][row - 1] === 'red' ? largeRedCounter : largeYellowCounter"
-                            alt="counter"
-                        >
+    <div v-if="loading">
+        <h1>Loading...</h1>
+    </div>
+    <div v-if="!loading" id="game">
+        <player-counter :player="1" :score="0" :playerConnected="playerNumber === 1 ? true : opponentConnected" />
+        <div id="board">
+            <div ref=board class="board-container d-none d-md-block">
+                <img class="back" :src="backBoardLarge" alt="back board" />
+                <div ref="grid" class="grid-container">
+                    <div class="column" v-for="col in 7" :key="col" @mouseover="setMarkerPosition(col)" @mouseleave="removeMarkerPosition" @click="makeMove(col)">
+                        <img v-if="markerColumn === col && playerTurn" class="marker animate__animated animate__bounce animate__infinite" :src="playerColour === 'red' ? redMarker : yellowMarker" alt="red marker" />
+                        <div :id="`col-${col}-cell-${row}`" class="cell" v-for="row in 6" :key="`cell-${row}`">
+                            <img
+                                class="red-counter animate__animated animate__bounceInDown d-none d-md-block"
+                                v-if="connectFourBoard[col - 1][row - 1]"
+                                :src="connectFourBoard[col - 1][row - 1] === 'red' ? largeRedCounter : largeYellowCounter"
+                                alt="counter"
+                            >
+                        </div>
                     </div>
                 </div>
+                <img class="front" :src="frontBoardLarge" alt="front board" />
             </div>
-            <img class="front" :src="frontBoardLarge" alt="front board" />
-        </div>
-        <div class="board-container d-block d-md-none">
-            <img class="back" :src="backBoardSmall" alt="back board" />
-            <div class="grid-container">
-                <!-- <div v-for="counter in playerCounters" :key="counter">
-                    <img ref="counter" class="red-counter" :src="largeRedCounter" alt="red counter">
-                </div> -->
-                <img v-show="isHovered" ref="marker" class="marker animate__animated animate__bounce animate__infinite" :src="redMarker" alt="red marker" />
+            <div class="board-container d-block d-md-none">
+                <img class="back" :src="backBoardSmall" alt="back board" />
+                <div class="grid-container">
+                    <!-- <div v-for="counter in playerCounters" :key="counter">
+                        <img ref="counter" class="red-counter" :src="largeRedCounter" alt="red counter">
+                    </div> -->
+                    <img v-show="isHovered" ref="marker" class="marker animate__animated animate__bounce animate__infinite" :src="redMarker" alt="red marker" />
+                </div>
+                <img class="front" :src="frontBoardSmall" alt="front board" />
             </div>
-            <img class="front" :src="frontBoardSmall" alt="front board" />
         </div>
-    </div>
+        <player-counter :player="2" :score="0" :playerConnected="playerNumber === 2 ? true : opponentConnected" />
 </div>
 </template>
 <script>
@@ -46,9 +50,15 @@ import smallRedCounter from '../assets/images/counter-red-small.svg';
 import largeYellowCounter from '../assets/images/counter-yellow-large.svg';
 import smallYellowCounter from '../assets/images/counter-yellow-small.svg';
 
+import PlayerCounter from '../components/PlayerCounter.vue';
+
 import { useServerStore } from '../stores/server';
+import { storeToRefs } from 'pinia';
 
 export default {
+    components: {
+        PlayerCounter
+    },
     setup() {
         const board = ref(null);
         const grid = ref(null);
@@ -57,12 +67,9 @@ export default {
         const counter = ref(null);
         const markerColumn = ref(null);
         const server = useServerStore();
-        const currentTurn = ref(false);
-        const colour = ref();
         const route = useRoute();
 
-        const vBoard = ref(Array.from({ length: 7 }, () => Array(6).fill(null)));
-
+        const { connectFourBoard, currentTurn, playerColour, opponentConnected, loading } = storeToRefs(server);
 
         function setMarkerPosition(col) {
             markerColumn.value = col;
@@ -79,12 +86,20 @@ export default {
         };
         
         const isCounterPresent = (column, row) => {
-            return vBoard[column - 1][row - 1] !== null;
+            return connectFourBoard[column - 1][row - 1] !== null;
         }
 
         const playerTurn = computed(() => {
-            return currentTurn.value === colour.value;
-        })
+            return currentTurn.value === playerColour.value;
+        });
+
+        const playerNumber = computed(() => {
+            return playerColour.value === 'red' ? 1 : 2;
+        });
+
+        const opponentNumber = computed(() => {
+            return playerColour.value === 'red' ? 2 : 1;
+        });
 
         onMounted(() => {
             if (route.params.roomId && !server.isConnected) {
@@ -94,15 +109,15 @@ export default {
             server.socket.emit('room-joined', route.params.roomId);
 
            server.socket.on('move-made', (data) => {
-            vBoard.value[data.column - 1][data.row - 1] = data.color;
+            connectFourBoard.value[data.column - 1][data.row - 1] = data.color;
            });
 
            server.socket.on('next-turn', (data) => {
                currentTurn.value = data;
            });
 
-           server.socket.on('colour', (data) => {
-               colour.value = data;
+           server.socket.on('playerColour', (data) => {
+               playerColour.value = data;
            });
         });
 
@@ -126,9 +141,13 @@ export default {
             marker, 
             counter,
             markerColumn,
-            vBoard,
+            connectFourBoard,
             playerTurn,
-            colour,
+            playerColour,
+            playerNumber,
+            opponentNumber,
+            opponentConnected,
+            loading,
 
             // methods
             setMarkerPosition,
@@ -140,13 +159,20 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+#game {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
+
     #board {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        width: 100vw;
-        height: 100vh;
 
         .board-container {
             position: relative;

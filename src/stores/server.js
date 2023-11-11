@@ -6,6 +6,14 @@ export const useServerStore = defineStore('server', () => {
   const socket = ref(null);
   const isConnected = ref(false);
 
+  const playerColour = ref(null);
+  const opponentConnected = ref(false);
+  const gameOver = ref(false);
+  const winner = ref(null);
+  const connectFourBoard = ref(Array.from({ length: 7 }, () => Array(6).fill(null)));
+  const currentTurn = ref(null);
+  const loading = ref(true);
+
   function initializeConnection() {
     if (socket.value && isConnected.value) return;
     console.log('Initializing socket connection');
@@ -20,6 +28,30 @@ export const useServerStore = defineStore('server', () => {
     socket.value.on('disconnect', () => {
       isConnected.value = false;
       console.log('Socket disconnected');
+    });
+
+    socket.value.on('colour', (colour) => {
+      playerColour.value = colour;
+    });
+
+    socket.value.on('game-over', (winner) => {
+      gameOver.value = true;
+      winner.value = winner;
+    });
+
+    socket.value.on('next-turn', (colour) => {
+      currentTurn.value = colour;
+    });
+
+    socket.value.on('player-joined', (colour) => {
+      if (colour !== playerColour.value) {
+        opponentConnected.value = true;
+      }
+    });
+
+    socket.value.on('loading-finished', () => {
+      loading.value = false;
+      console.log('Loading finished');
     });
   }
 
@@ -43,6 +75,18 @@ export const useServerStore = defineStore('server', () => {
     socket.value.emit('join-room', room);
   }
 
-  // Export the socket connection and the connection state
-  return { socket, isConnected, disconnect, makeMove, startNewGame, joinRoom };
+  return {
+    socket,
+    isConnected,
+    disconnect,
+    makeMove,
+    startNewGame,
+    joinRoom,
+    playerColour,
+    gameOver,
+    winner,
+    connectFourBoard,
+    currentTurn,
+    opponentConnected,
+  }
 });

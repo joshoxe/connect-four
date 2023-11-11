@@ -1,12 +1,8 @@
-// DESIGN SYSTEM
-$primary-bg: #7945FF;
-$secondary-bg: #5C2DD5;
-$dark: #000;
-$white: #fff;
-$red: #FD6687;
-$yellow: #FFCE67;
-
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
+@import 'node_modules/bootstrap/scss/functions';
+@import 'node_modules/bootstrap/scss/variables';
+@import 'node_modules/bootstrap/scss/mixins';
+@import 'variables.scss';
 
 * {
     margin: 0;
@@ -39,5 +35,44 @@ body, html {
     h3 {
         font-size: 1.25rem;
         line-height: 1.25rem; 
+    }
+
+    .blunt-shadow {
+        box-shadow: 0px 8px $dark;
+    }
+
+    .button {
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-align: left;
+        border: $dark 3px solid;
+        border-radius: 20px;
+        padding: 15px 20px;
+        width: 100%;
+
+        &:hover {
+            cursor: pointer;
+            border: $secondary-bg 3px solid;
+            box-shadow: 0px 5px $secondary-bg;
+        }
+    }
+
+    .main {
+        background-color: $yellow;
+        color: $dark;
+    }
+
+    .secondary {
+        background-color: $white;
+        color: $dark;
+    }
+
+    .warning {
+        background-color: $red;
+        color: $white;
+    }
+
+    .button-img {
+        height: 2rem;
     }
 }

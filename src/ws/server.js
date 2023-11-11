@@ -130,6 +130,8 @@ io.on("connection", (socket) => {
     if (game.players.red && game.players.yellow) {
       io.to(roomName).emit('next-turn', game.currentPlayer);
     }
+
+    socket.emit('loading-finished');
   });
 
   socket.on('get-wins', (roomName) => {

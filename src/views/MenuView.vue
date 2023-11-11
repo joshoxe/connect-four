@@ -1,13 +1,17 @@
 <template>
   <div>
-    <button class="btn btn-primary" @click="startNewGame">Play</button>
+    <main-menu @start-new-game="startNewGame" />
   </div>
 </template>
 <script>
 import { useRouter } from 'vue-router';
 import { useServerStore } from '../stores/server';
+import MainMenu from '../components/MainMenu.vue';
 
 export default {
+  components: {
+    MainMenu
+  },
   setup() {
     const server = useServerStore();
     const router = useRouter();
