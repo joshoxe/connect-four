@@ -4,8 +4,27 @@
   </main>
 </template>
 <script>
+import { onMounted, onBeforeUnmount } from 'vue';
+import { useServerStore } from './stores/server';
+
 export default {
-  
+  setup() {
+    const server = useServerStore();
+
+    onMounted(() => {
+      window.addEventListener('beforeunload', handleCleanup);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('beforeunload', handleCleanup);
+    });
+
+  function handleCleanup() {
+      server.disconnect();
+      server.clearState();
+  }
+}
+
 }
 </script>
 <style lang="scss" scoped>

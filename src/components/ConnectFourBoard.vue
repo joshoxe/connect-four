@@ -2,8 +2,7 @@
     <div v-if="loading">
         <h1>Loading...</h1>
     </div>
-    <div v-if="!loading" id="game">
-        <player-counter :player="1" :score="0" :playerConnected="playerNumber === 1 ? true : opponentConnected" />
+    <div v-if="!loading">
         <div id="board">
             <div ref=board class="board-container d-none d-md-block">
                 <img class="back" :src="backBoardLarge" alt="back board" />
@@ -24,16 +23,9 @@
             </div>
             <div class="board-container d-block d-md-none">
                 <img class="back" :src="backBoardSmall" alt="back board" />
-                <div class="grid-container">
-                    <!-- <div v-for="counter in playerCounters" :key="counter">
-                        <img ref="counter" class="red-counter" :src="largeRedCounter" alt="red counter">
-                    </div> -->
-                    <img v-show="isHovered" ref="marker" class="marker animate__animated animate__bounce animate__infinite" :src="redMarker" alt="red marker" />
-                </div>
                 <img class="front" :src="frontBoardSmall" alt="front board" />
             </div>
         </div>
-        <player-counter :player="2" :score="0" :playerConnected="playerNumber === 2 ? true : opponentConnected" />
 </div>
 </template>
 <script>
@@ -50,26 +42,29 @@ import smallRedCounter from '../assets/images/counter-red-small.svg';
 import largeYellowCounter from '../assets/images/counter-yellow-large.svg';
 import smallYellowCounter from '../assets/images/counter-yellow-small.svg';
 
-import PlayerCounter from '../components/PlayerCounter.vue';
-
 import { useServerStore } from '../stores/server';
+import { useStateStore } from '../stores/state';
 import { storeToRefs } from 'pinia';
 
 export default {
-    components: {
-        PlayerCounter
+    props: {
+        playerNumber: {
+            type: Number,
+            required: true,
+        },
     },
     setup() {
         const board = ref(null);
         const grid = ref(null);
-        const isHovered = ref(false);
         const marker = ref(null);
         const counter = ref(null);
         const markerColumn = ref(null);
         const server = useServerStore();
+        const state = useStateStore();
         const route = useRoute();
 
-        const { connectFourBoard, currentTurn, playerColour, opponentConnected, loading } = storeToRefs(server);
+        const { connectFourBoard, currentTurn, playerColour, loading } = storeToRefs(server);
+        const { isHovered } = storeToRefs(state);
 
         function setMarkerPosition(col) {
             markerColumn.value = col;
@@ -91,10 +86,6 @@ export default {
 
         const playerTurn = computed(() => {
             return currentTurn.value === playerColour.value;
-        });
-
-        const playerNumber = computed(() => {
-            return playerColour.value === 'red' ? 1 : 2;
         });
 
         const opponentNumber = computed(() => {
@@ -144,9 +135,7 @@ export default {
             connectFourBoard,
             playerTurn,
             playerColour,
-            playerNumber,
             opponentNumber,
-            opponentConnected,
             loading,
 
             // methods
@@ -159,15 +148,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-#game {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-}
-
     #board {
         display: flex;
         flex-direction: column;

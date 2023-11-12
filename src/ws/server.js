@@ -97,7 +97,6 @@ io.on("connection", (socket) => {
     }
 
     socket.join(roomName);
-    // find empty player slot
     const game = games[roomName];
 
     if (game == null) {
@@ -128,6 +127,7 @@ io.on("connection", (socket) => {
     io.to(roomName).emit('player-joined', player);
 
     if (game.players.red && game.players.yellow) {
+      io.to(roomName).emit('start-game');
       io.to(roomName).emit('next-turn', game.currentPlayer);
     }
 
@@ -145,33 +145,48 @@ io.on("connection", (socket) => {
     socket.emit('wins', game.playerWins);
   });
 
-  socket.on('disconnect', () => {
+  socket.on('leave-game', () => {
     console.log('user disconnected', socket.id);
 
-    // find room
-    const room = Object.keys(socket.rooms)[1];
-    const game = games[room];
 
-    if (game == null) {
-      return;
+    // find all rooms that the user is in
+    const rooms = [...socket.rooms];
+
+    console.log('rooms', rooms);
+
+    for (let i = 1; i < rooms.length; i++) {
+      const roomName = rooms[i];
+      const game = games[roomName];
+      console.log('room', roomName)
+      console.log('game', game)
+
+      if (game == null) {
+        return;
+      }
+
+      console.log('finding player to remove')
+      if (game.players.red === socket.id) {
+        game.players.red = null;
+      } else if (game.players.yellow === socket.id) {
+        game.players.yellow = null;
+      }
+
+      console.log('player removed', game.players)
+
+      if (game.players.red != null || game.players.yellow != null) {
+        console.log('opponent disconnected', socket.id)
+        io.to(roomName).emit('opponent-disconnected');
+        return;
+      }
+
+      console.log('deleting room', roomName);
+
+      delete games[roomName];
+
+      console.log('room deleted', roomName);
+
+      socket.leave(roomName);
     }
-
-    if (game.players.red === socket.id) {
-      game.players.red = null;
-    } else if (game.players.yellow === socket.id) {
-      game.players.yellow = null;
-    }
-
-    if (game.players.red || game.players.yellow) {
-      io.to(room).emit('opponent-disconnected');
-      return;
-    }
-
-    delete games[room];
-
-    console.log('room deleted', room);
-
-    socket.leave(room);
   });
 });
 

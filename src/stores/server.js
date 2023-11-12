@@ -43,10 +43,21 @@ export const useServerStore = defineStore('server', () => {
       currentTurn.value = colour;
     });
 
+    socket.value.on('start-game', () => {
+      console.log('Game started');
+      opponentConnected.value = true;
+    });
+
     socket.value.on('player-joined', (colour) => {
       if (colour !== playerColour.value) {
+        console.log('Opponent connected');
         opponentConnected.value = true;
       }
+    });
+
+    socket.value.on('opponent-disconnected', () => {
+      console.log('Opponent disconnected');
+      opponentConnected.value = false;
     });
 
     socket.value.on('loading-finished', () => {
@@ -57,8 +68,17 @@ export const useServerStore = defineStore('server', () => {
 
   function disconnect() {
     if (socket.value) {
-      socket.value.disconnect();
+      socket.value.emit('leave-game');
     }
+  }
+
+  function clearState() {
+    gameOver.value = false;
+    winner.value = null;
+    connectFourBoard.value = Array.from({ length: 7 }, () => Array(6).fill(null));
+    currentTurn.value = null;
+    opponentConnected.value = false;
+    loading.value = true;
   }
 
   function makeMove(column) {
@@ -82,6 +102,7 @@ export const useServerStore = defineStore('server', () => {
     makeMove,
     startNewGame,
     joinRoom,
+    clearState,
     playerColour,
     gameOver,
     winner,
