@@ -20,6 +20,7 @@
                     </div>
                 </div>
                 <img class="front" :src="frontBoardLarge" alt="front board" />
+                <turn-counter />
             </div>
             <div class="board-container d-block d-md-none">
                 <img class="back" :src="backBoardSmall" alt="back board" />
@@ -46,7 +47,12 @@ import { useServerStore } from '../stores/server';
 import { useStateStore } from '../stores/state';
 import { storeToRefs } from 'pinia';
 
+import TurnCounter from './TurnCounter.vue';
+
 export default {
+    components: {
+        TurnCounter,
+    },
     props: {
         playerNumber: {
             type: Number,
@@ -104,6 +110,7 @@ export default {
            });
 
            server.socket.on('next-turn', (data) => {
+                server.turnTimer = 30;
                currentTurn.value = data;
            });
 
@@ -147,7 +154,7 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
     #board {
         display: flex;
         flex-direction: column;
@@ -189,6 +196,13 @@ export default {
 
             .cell {
                 z-index: 10;
+            }
+
+            #turn-counter {
+                position: absolute;
+                bottom: -100px;
+                left: 35%;
+                z-index: 4;
             }
         }
 

@@ -14,6 +14,7 @@ const io = new Server({
 //   roomName: {
 //     board: [],
 //     currentPlayer: 'red',
+//     turnTimer: 30,
 //     playerWins: {
 //       red: 0,
 //       yellow: 0,
@@ -25,6 +26,8 @@ const io = new Server({
 //   }
 // }
 const games = {};
+
+let timer;
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
@@ -51,7 +54,7 @@ io.on("connection", (socket) => {
     }
   
     game.board[row][column] = game.currentPlayer;
-  
+
     io.to(room).emit('move-made', { column, row, color: game.currentPlayer });
 
     const winner = checkForWin(game.board);
@@ -64,6 +67,22 @@ io.on("connection", (socket) => {
     game.currentPlayer = game.currentPlayer === 'red' ? 'yellow' : 'red';
 
     io.to(room).emit('next-turn', game.currentPlayer);
+    game.turnTimer = 30;
+    if (timer) {
+      clearInterval(timer);
+    }
+  
+    timer = setInterval(() => {
+      game.turnTimer--;
+
+      io.to(room).emit('turn-timer', game.turnTimer);
+
+      if (game.turnTimer === 0) {
+        game.currentPlayer = game.currentPlayer === 'red' ? 'yellow' : 'red';
+        io.to(room).emit('next-turn', game.currentPlayer);
+        game.turnTimer = 30;
+      }
+    }, 1000);
   });
 
   socket.on('create-room', () => {
@@ -129,6 +148,21 @@ io.on("connection", (socket) => {
     if (game.players.red && game.players.yellow) {
       io.to(roomName).emit('start-game');
       io.to(roomName).emit('next-turn', game.currentPlayer);
+      game.turnTimer = 30;
+
+      timer = setInterval(() => {
+        game.turnTimer--;
+
+        io.to(roomName).emit('turn-timer', game.turnTimer);
+
+        if (game.turnTimer === 0) {
+          game.currentPlayer = game.currentPlayer === 'red' ? 'yellow' : 'red';
+          io.to(roomName).emit('next-turn', game.currentPlayer);
+          game.turnTimer = 30;
+
+          clearInterval(timer);
+        }
+      }, 1000);
     }
 
     socket.emit('loading-finished');
@@ -172,6 +206,10 @@ io.on("connection", (socket) => {
       }
 
       console.log('player removed', game.players)
+
+      if (timer) {
+        clearInterval(timer);
+      }
 
       if (game.players.red != null || game.players.yellow != null) {
         console.log('opponent disconnected', socket.id)

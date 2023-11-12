@@ -13,6 +13,7 @@ export const useServerStore = defineStore('server', () => {
   const connectFourBoard = ref(Array.from({ length: 7 }, () => Array(6).fill(null)));
   const currentTurn = ref(null);
   const loading = ref(true);
+  const turnTimer = ref(30);
 
   function initializeConnection() {
     if (socket.value && isConnected.value) return;
@@ -64,6 +65,11 @@ export const useServerStore = defineStore('server', () => {
       loading.value = false;
       console.log('Loading finished');
     });
+
+    socket.value.on('turn-timer', (timer) => {
+      console.log('Turn timer', timer);
+      turnTimer.value = timer;
+    });
   }
 
   function disconnect() {
@@ -109,5 +115,6 @@ export const useServerStore = defineStore('server', () => {
     connectFourBoard,
     currentTurn,
     opponentConnected,
+    turnTimer,
   }
 });
